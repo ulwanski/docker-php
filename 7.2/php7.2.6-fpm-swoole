@@ -1,0 +1,19 @@
+FROM ulwanski/php:7.2.6-fpm
+
+# docker build --compress -t ulwanski/php:7.2.6-fpm-swoole -f php7.2.6-fpm-swoole .
+MAINTAINER Marek Ulwański <marek@ulwanski.pl>
+
+RUN apk update && apk add --upgrade --no-cache $PHPIZE_DEPS nghttp2-dev openssl-dev
+
+# RUN docker-php-ext-install sockets
+# --enable-swoole-debug --enable-sockets 
+RUN wget https://github.com/swoole/swoole-src/archive/v4.2.8.tar.gz &&\
+    tar -xzf v4.2.8.tar.gz &&\
+    cd swoole-src-4.2.8 &&\
+    phpize &&\
+    ./configure --enable-openssl --enable-http2 --enable-async-redis --enable-mysqlnd --enable-ringbuffer &&\
+    make &&\
+    make install
+
+COPY ./5-swoole.ini $PHP_INI_DIR/conf.d/
+
